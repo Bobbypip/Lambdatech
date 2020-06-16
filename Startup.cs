@@ -32,8 +32,10 @@ namespace Lambdatech
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
-                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-);
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            // Enable CORS (Cross Origin Resource Sharing)
+            services.AddCors(); // By Middleware
 
             services.AddControllers();
         }
@@ -51,6 +53,16 @@ namespace Lambdatech
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // CORS configuration
+            app.UseCors(
+                builder =>
+                {
+                    builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+                });
 
             app.UseEndpoints(endpoints =>
             {

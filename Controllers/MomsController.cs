@@ -38,21 +38,41 @@ namespace Lambdatech.Controllers
             return entitiesList;
         }
 
-        [HttpGet("{id:int}", Name = "getMom")]
-        public async Task<ActionResult<MomDto>> Get(int id)
+        [HttpGet("{id:int}/{name?}", Name = "getMom")]
+        public async Task<ActionResult<MomDto>> Get(int id, string name)
         {
-            var entity = await context.Moms.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (entity == null)
+            if (name != null)
             {
-                return NotFound();
+                var entityname = await context.Moms.FirstOrDefaultAsync(x => x.Name == name);
+
+                if (entityname == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return new MomDto
+                    {
+                        Id = entityname.Id,
+                        Name = entityname.Name
+                    };
+                }
             }
-
-            return new MomDto
+            else
             {
-                Id = entity.Id,
-                Name = entity.Name
-            };
+                var entity = await context.Moms.FirstOrDefaultAsync(x => x.Id == id);
+
+                if (entity == null)
+                {
+                    return NotFound();
+                }
+
+                return new MomDto
+                {
+                    Id = entity.Id,
+                    Name = entity.Name
+                };
+            }
         }
 
         [HttpPost]

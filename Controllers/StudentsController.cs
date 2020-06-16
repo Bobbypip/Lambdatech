@@ -55,35 +55,74 @@ namespace Lambdatech.Controllers
             return entitiesList;
         }
 
-        [HttpGet("{id:int}", Name = "getStudent")]
-        public async Task<ActionResult<StudentDto>> Get(int id)
+        [HttpGet("{id:int}/{name?}", Name = "getStudent")]
+        public async Task<ActionResult<StudentDto>> Get(int id, string name)
         {
-            var entity = await context.Students.Include(x => x.Dad).Include(x => x.Mom).Include(x => x.Schools).FirstOrDefaultAsync(x => x.Id == id);
             var schoolList = new List<SchoolDto>();
 
-            if (entity == null)
+            if (name != null)
             {
-                return NotFound();
-            }
+                var entityname = await context.Students.Include(x => x.Dad).Include(x => x.Mom).Include(x => x.Schools).FirstOrDefaultAsync(x => x.Name == name);
 
-            foreach (var school in entity.Schools)
-            {
-                schoolList.Add(new SchoolDto
+                if (entityname == null)
                 {
-                    Id = school.Id,
-                    Name = school.Name
-                });
-            }
+                    return NotFound();
+                }
+                else
+                {
+                    foreach (var school in entityname.Schools)
+                    {
+                        schoolList.Add(new SchoolDto
+                        {
+                            Id = school.Id,
+                            Name = school.Name
+                        });
+                    }
 
-            return new StudentDto { 
-                Id = entity.Id,
-                Name = entity.Name,
-                MomId = entity.MomId,
-                MomName = entity.Mom.Name,
-                DadId = entity.DadId,
-                DadName = entity.Dad.Name,
-                Schools = schoolList
-            };
+                    return new StudentDto
+                    {
+                        Id = entityname.Id,
+                        Name = entityname.Name,
+                        MomId = entityname.MomId,
+                        MomName = entityname.Mom.Name,
+                        DadId = entityname.DadId,
+                        DadName = entityname.Dad.Name,
+                        Schools = schoolList
+                    };
+                }
+            }
+            else
+            {
+                var entity = await context.Students.Include(x => x.Dad).Include(x => x.Mom).Include(x => x.Schools).FirstOrDefaultAsync(x => x.Id == id);
+
+                if (entity == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    foreach (var school in entity.Schools)
+                    {
+                        schoolList.Add(new SchoolDto
+                        {
+                            Id = school.Id,
+                            Name = school.Name
+                        });
+                    }
+
+                    return new StudentDto
+                    {
+                        Id = entity.Id,
+                        Name = entity.Name,
+                        MomId = entity.MomId,
+                        MomName = entity.Mom.Name,
+                        DadId = entity.DadId,
+                        DadName = entity.Dad.Name,
+                        Schools = schoolList
+                    };
+                }
+
+            }
         }
 
         [HttpPost]
